@@ -1,12 +1,12 @@
 package com.chatbackend.dto;
 
+import com.chatbackend.entity.Role;
 import lombok.Data;
-
-import java.util.Set;
+import java.util.Collection;
 
 @Data
 public class UserResponseDto {
     private Long id;
     private String username;
-    private Set<String> roles;
+    private Collection<Role> roles;
 }
