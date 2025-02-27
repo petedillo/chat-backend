@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -33,14 +34,19 @@ public class AuthController {
         try {
             Optional<User> user = authService.loginUser(userDto.getUsername(), userDto.getPassword());
             if (user.isPresent()) {
-                return ResponseEntity.ok("Login successful");
+                String token = authService.generateJwtToken(user.get());
+                UserResponseDto userResponseDto = new UserResponseDto();
+                userResponseDto.setId(user.get().getId());
+                userResponseDto.setUsername(user.get().getUsername());
+                userResponseDto.setRoles(user.get().getRoles());
+                return ResponseEntity.ok(Map.of("user", userResponseDto, "token", token));
             } else {
-                return ResponseEntity.status(401).body("Invalid username or password");
+                return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("An unexpected error occurred");
+            return ResponseEntity.status(500).body(Map.of("error", "An unexpected error occurred"));
         }
     }
 }
